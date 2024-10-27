@@ -26,3 +26,10 @@ type Result struct {
 	UserName string `json:"user_name"`
 	Score    int    `json:"score"`
 }
+
+type SubmissionResponse struct {
+	Message            string  `json:"message"`
+	Score              int     `json:"score"`
+	Rank               float64 `json:"rank"`
+	TotalQuestionCount int     `json:"total_question_count"`
+}

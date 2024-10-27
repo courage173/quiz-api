@@ -1,27 +1,28 @@
 package storage
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/courage173/quiz-api/internal/models"
 )
 
-// Storage holds all in-memory data
-type Storage struct {
+// Storage interface defines accessible methods for storage operations
+type Storage interface {
+	GetQuestions() []models.Question
+	GetSubmissions() []models.Result
+	AddUserSubmission(submission models.Result)
+	GetCorrectOption(questionID int) (models.Option, error)
+}
+
+type memoryStorage struct {
 	Questions   []models.Question
 	Submissions []models.Result
 	Mutex       sync.RWMutex
 }
 
-// UserSubmission represents a user's submitted answers
-type UserSubmission struct {
-	UserName string
-	Correct  int
-}
-
-// NewStorage initializes the storage with sample questions
-func NewStorage() *Storage {
-	return &Storage{
+func NewStorage() Storage {
+	return &memoryStorage{
 		Questions: []models.Question{
 			{
 				ID:   1,
@@ -50,8 +51,41 @@ func NewStorage() *Storage {
 }
 
 // AddUserSubmission adds a user's submission to storage
-func (s *Storage) AddUserSubmission(submissionResult models.Result) {
+func (s *memoryStorage) AddUserSubmission(submissionResult models.Result) {
 	s.Mutex.Lock()
 	defer s.Mutex.Unlock()
 	s.Submissions = append(s.Submissions, submissionResult)
+
+}
+
+// GetQuestion retrieves a question by its ID
+func (s *memoryStorage) GetQuestion(id int) (models.Question, error) {
+	for _, question := range s.Questions {
+		if question.ID == id {
+			return question, nil
+		}
+	}
+	return models.Question{}, errors.New("question not found")
+}
+
+// GetCorrectOption retrieves the correct option for a given question
+func (s *memoryStorage) GetCorrectOption(questionId int) (models.Option, error) {
+	question, err := s.GetQuestion(questionId)
+	if err != nil {
+		return models.Option{}, err
+	}
+	for _, option := range question.Options {
+		if option.IsCorrect {
+			return option, nil
+		}
+	}
+	return models.Option{}, errors.New("option not found")
+}
+
+func (s *memoryStorage) GetQuestions() []models.Question {
+	return s.Questions
+}
+
+func (s *memoryStorage) GetSubmissions() []models.Result {
+	return s.Submissions
 }
