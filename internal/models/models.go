@@ -32,10 +32,10 @@ type Result struct {
 }
 
 type SubmissionResponse struct {
-	Message            string  `json:"message"`
-	Score              int     `json:"score"`
-	Rank               float64 `json:"rank"`
-	TotalQuestionCount int     `json:"totalQuestionCount"`
+	Message            string `json:"message"`
+	Score              int    `json:"score"`
+	Rank               string `json:"rank"`
+	TotalQuestionCount int    `json:"totalQuestionCount"`
 }
 
 func (s Submission) Validate() error {

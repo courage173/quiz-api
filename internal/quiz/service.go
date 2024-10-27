@@ -33,7 +33,7 @@ func (s service) SubmitQuiz(submission models.Submission) (models.SubmissionResp
 	totalQuestions := s.storage.Count()
 
 	if totalQuestions != len(submission.Answers) {
-		return models.SubmissionResponse{}, fmt.Errorf("Invalid submission: expected %d answers, got %d", totalQuestions, len(submission.Answers))
+		return models.SubmissionResponse{}, fmt.Errorf("invalid submission: expected %d answers, got %d", totalQuestions, len(submission.Answers))
 	}
 
 	for _, question := range submission.Answers {
@@ -51,14 +51,14 @@ func (s service) SubmitQuiz(submission models.Submission) (models.SubmissionResp
 	scoreRankPercentage := s.calculateScoreRankPercentage(result.Score)
 	s.storage.AddUserSubmission(*result)
 
-	formattedValue := fmt.Sprintf("%.2f", scoreRankPercentage)
+	formattedValue := fmt.Sprintf("%.2f%%", scoreRankPercentage)
 
 	message := fmt.Sprintf("You were better than %s of all quizzers", formattedValue)
 
 	return models.SubmissionResponse{
 		Message:            message,
 		Score:              result.Score,
-		Rank:               scoreRankPercentage,
+		Rank:               formattedValue,
 		TotalQuestionCount: len(submission.Answers),
 	}, nil
 }
