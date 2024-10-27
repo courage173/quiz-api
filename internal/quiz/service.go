@@ -13,6 +13,7 @@ import (
 type Service interface {
 	SubmitQuiz(submission models.Submission) (models.SubmissionResponse, error)
 	GetQuestions() []models.Question
+	GetUserSubmission(userName string) (models.GetSubmissionResponse, error)
 }
 
 type service struct {
@@ -31,6 +32,7 @@ func (s service) SubmitQuiz(submission models.Submission) (models.SubmissionResp
 	correctCount := 0
 
 	totalQuestions := s.storage.Count()
+	fmt.Println("totalQuestions: ", totalQuestions)
 
 	if totalQuestions != len(submission.Answers) {
 		return models.SubmissionResponse{}, fmt.Errorf("invalid submission: expected %d answers, got %d", totalQuestions, len(submission.Answers))
@@ -47,43 +49,37 @@ func (s service) SubmitQuiz(submission models.Submission) (models.SubmissionResp
 		}
 	}
 
-	result := &models.Result{UserName: submission.UserName, Score: correctCount}
-	scoreRankPercentage := s.calculateScoreRankPercentage(result.Score)
+	result := &models.Result{UserName: submission.UserName, Score: correctCount, TotalQuestionAnswered: totalQuestions}
+
 	s.storage.AddUserSubmission(*result)
 
+	message := fmt.Sprintf("You got %d questions out of %d", result.Score, totalQuestions)
+
+	return models.SubmissionResponse{
+		Message:               message,
+		Score:                 result.Score,
+		TotalQuestionAnswered: totalQuestions,
+	}, nil
+}
+
+func (s service) GetUserSubmission(userName string) (models.GetSubmissionResponse, error) {
+	submission, err := s.storage.GetUserSubmission(userName)
+
+	if err != nil {
+		return models.GetSubmissionResponse{}, err
+	}
+
+	scoreRankPercentage := s.storage.CalculateScoreRankPercentage(submission.Score)
 	formattedValue := fmt.Sprintf("%.2f%%", scoreRankPercentage)
 
 	message := fmt.Sprintf("You were better than %s of all quizzers", formattedValue)
 
-	return models.SubmissionResponse{
-		Message:            message,
-		Score:              result.Score,
-		Rank:               formattedValue,
-		TotalQuestionCount: len(submission.Answers),
+	return models.GetSubmissionResponse{
+		Message:               message,
+		Score:                 submission.Score,
+		Rank:                  formattedValue,
+		TotalQuestionAnswered: submission.TotalQuestionAnswered,
 	}, nil
-}
-
-func (s service) calculateScoreRankPercentage(score int) float64 {
-	if score == 0 {
-		return 0.0
-	}
-
-	submissions := s.storage.GetSubmissions()
-	totalSubmissions := len(submissions)
-
-	if totalSubmissions == 0 {
-		return 100.0
-	}
-
-	lowerScoreCount := 0
-	for _, submission := range submissions {
-		if submission.Score < score {
-			lowerScoreCount++
-		}
-	}
-
-	percentageBetter := (float64(lowerScoreCount) / float64(totalSubmissions)) * 100.0
-	return percentageBetter
 }
 
 func (s service) GetQuestions() []models.Question {

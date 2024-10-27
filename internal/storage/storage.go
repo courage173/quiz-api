@@ -12,16 +12,18 @@ import (
 
 type Storage interface {
 	GetQuestions() []models.Question
-	GetSubmissions() []models.Result
+	GetUserSubmission(userName string) (models.Result, error)
+	CalculateScoreRankPercentage(score int) float64
 	AddUserSubmission(submission models.Result)
 	GetCorrectOption(questionID int) (models.Option, error)
 	Count() int
 }
 
 type memoryStorage struct {
-	Questions   map[int]models.Question
-	Submissions []models.Result
-	Mutex       sync.RWMutex
+	Questions    map[int]models.Question
+	Submissions  map[string]models.Result
+	ScoreTracker map[int]int
+	Mutex        sync.RWMutex
 }
 
 func NewStorage() Storage {
@@ -128,14 +130,52 @@ func NewStorage() Storage {
 				},
 			},
 		},
-		Submissions: make([]models.Result, 0),
+		Submissions:  make(map[string]models.Result),
+		ScoreTracker: make(map[int]int),
 	}
 }
 
 func (s *memoryStorage) AddUserSubmission(submissionResult models.Result) {
 	s.Mutex.Lock()
 	defer s.Mutex.Unlock()
-	s.Submissions = append(s.Submissions, submissionResult)
+	s.Submissions[submissionResult.UserName] = submissionResult
+	s.ScoreTracker[submissionResult.Score]++
+}
+
+func (s *memoryStorage) GetUserSubmission(userName string) (models.Result, error) {
+	s.Mutex.Lock()
+	defer s.Mutex.Unlock()
+
+	submission, exists := s.Submissions[userName]
+	if !exists {
+		return models.Result{}, errors.New("submission not found")
+	}
+	return submission, nil
+}
+
+func (s *memoryStorage) CalculateScoreRankPercentage(score int) float64 {
+	s.Mutex.RLock()
+	defer s.Mutex.RUnlock()
+
+	if score == 0 {
+		return 0.0
+	}
+
+	// subtracting 1 to exclude the current submission
+	totalScores := len(s.Submissions) - 1
+
+	if totalScores == 0 {
+		return 100.0
+	}
+
+	lowerScores := 0
+	for s, count := range s.ScoreTracker {
+		if s < score {
+			lowerScores += count
+		}
+	}
+
+	return float64(lowerScores) / float64(totalScores) * 100
 }
 
 func (s *memoryStorage) GetQuestion(id int) (models.Question, error) {
@@ -173,10 +213,6 @@ func (s *memoryStorage) GetQuestions() []models.Question {
 		questions = append(questions, s.Questions[key])
 	}
 	return questions
-}
-
-func (s *memoryStorage) GetSubmissions() []models.Result {
-	return s.Submissions
 }
 
 func (s *memoryStorage) Count() int {

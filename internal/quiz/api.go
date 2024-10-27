@@ -12,7 +12,9 @@ import (
 
 func RegisterHandlers(rg *routing.RouteGroup, service Service, logger log.Logger) {
 	rg.Get("", getQuiz(service, logger))
+	rg.Get("/submission/<username>", getUserSubmission(service, logger))
 	rg.Post("/submit", submitQuiz(service, logger))
+
 }
 
 func getQuiz(service Service, logger log.Logger) routing.Handler {
@@ -45,6 +47,20 @@ func submitQuiz(service Service, logger log.Logger) routing.Handler {
 
 		if err != nil {
 			logger.With(c.Request.Context()).Errorf("Error submitting quiz: %v", err)
+			return errors.BadRequest(err.Error())
+		}
+
+		return c.Write(response)
+	}
+}
+
+func getUserSubmission(service Service, logger log.Logger) routing.Handler {
+	return func(c *routing.Context) error {
+		username := c.Param("username")
+		response, err := service.GetUserSubmission(username)
+
+		if err != nil {
+			logger.With(c.Request.Context()).Errorf("Error getting user submission: %v", err)
 			return errors.BadRequest(err.Error())
 		}
 

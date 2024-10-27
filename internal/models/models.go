@@ -27,15 +27,22 @@ type Submission struct {
 }
 
 type Result struct {
-	UserName string `json:"userName"`
-	Score    int    `json:"score"`
+	UserName              string `json:"userName"`
+	Score                 int    `json:"score"`
+	TotalQuestionAnswered int    `json:"totalQuestionAnswered"`
 }
 
 type SubmissionResponse struct {
-	Message            string `json:"message"`
-	Score              int    `json:"score"`
-	Rank               string `json:"rank"`
-	TotalQuestionCount int    `json:"totalQuestionCount"`
+	Message               string `json:"message"`
+	Score                 int    `json:"score"`
+	TotalQuestionAnswered int    `json:"totalQuestionCount"`
+}
+
+type GetSubmissionResponse struct {
+	Message               string `json:"message"`
+	Score                 int    `json:"score"`
+	Rank                  string `json:"rank"`
+	TotalQuestionAnswered int    `json:"totalQuestionCount"`
 }
 
 func (s Submission) Validate() error {
