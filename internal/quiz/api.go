@@ -41,7 +41,12 @@ func submitQuiz(service Service, logger log.Logger) routing.Handler {
 			return err
 		}
 
-		response := service.SubmitQuiz(req)
+		response, err := service.SubmitQuiz(req)
+
+		if err != nil {
+			logger.With(c.Request.Context()).Errorf("Error submitting quiz: %v", err)
+			return errors.BadRequest(err.Error())
+		}
 
 		return c.Write(response)
 	}

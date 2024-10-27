@@ -13,6 +13,7 @@ type Storage interface {
 	GetSubmissions() []models.Result
 	AddUserSubmission(submission models.Result)
 	GetCorrectOption(questionID int) (models.Option, error)
+	Count() int
 }
 
 type memoryStorage struct {
@@ -88,4 +89,8 @@ func (s *memoryStorage) GetQuestions() []models.Question {
 
 func (s *memoryStorage) GetSubmissions() []models.Result {
 	return s.Submissions
+}
+
+func (s *memoryStorage) Count() int {
+	return len(s.Questions)
 }
