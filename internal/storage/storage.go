@@ -8,9 +8,9 @@ import (
 
 // Storage holds all in-memory data
 type Storage struct {
-	Questions []models.Question
-	Users     []models.UserSubmission
-	Mutex     sync.RWMutex
+	Questions   []models.Question
+	Submissions []models.Result
+	Mutex       sync.RWMutex
 }
 
 // UserSubmission represents a user's submitted answers
@@ -45,13 +45,13 @@ func NewStorage() *Storage {
 			},
 			// Add more questions as needed
 		},
-		Users: make([]models.UserSubmission, 0),
+		Submissions: make([]models.Result, 0),
 	}
 }
 
 // AddUserSubmission adds a user's submission to storage
-func (s *Storage) AddUserSubmission(submission models.UserSubmission) {
+func (s *Storage) AddUserSubmission(submissionResult models.Result) {
 	s.Mutex.Lock()
 	defer s.Mutex.Unlock()
-	s.Users = append(s.Users, submission)
+	s.Submissions = append(s.Submissions, submissionResult)
 }
