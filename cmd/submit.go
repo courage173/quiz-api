@@ -12,7 +12,7 @@ import (
 // Define answers for three different users
 var userAnswers = map[string]models.Submission{
 	"user1": {
-		UserName: "Alice",
+		UserName: "user1",
 		Answers: []models.Answer{
 			{QuestionID: 1, OptionID: 2},
 			{QuestionID: 2, OptionID: 3},
@@ -27,7 +27,7 @@ var userAnswers = map[string]models.Submission{
 		},
 	},
 	"user2": {
-		UserName: "Bob",
+		UserName: "user2",
 		Answers: []models.Answer{
 			{QuestionID: 1, OptionID: 3},
 			{QuestionID: 2, OptionID: 1},
@@ -42,7 +42,7 @@ var userAnswers = map[string]models.Submission{
 		},
 	},
 	"user3": {
-		UserName: "Courage",
+		UserName: "user3",
 		Answers: []models.Answer{
 			{QuestionID: 1, OptionID: 1},
 			{QuestionID: 2, OptionID: 2},

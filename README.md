@@ -86,7 +86,7 @@ The project includes a CLI, built with Cobra, to interact with the API. The CLI 
    View the user’s score and how it compares with other quiz participants.
 
    ```bash
-   go run main.go score
+   go run main.go score --user user1
    ```
 
 ### Example Workflow
@@ -95,6 +95,6 @@ The project includes a CLI, built with Cobra, to interact with the API. The CLI 
 2. **Run the CLI commands**:
    - Use `get` to retrieve the list of quiz questions.
    - Use `answer` with the `--user` flag to submit answers for a specific user.
-   - Use `score` to see the score and comparison results.
+   - Use `score` with the `--user` to see the score and comparison results.
 
 This setup should get you started with running and interacting with the project. For any questions, feel free to reach out!

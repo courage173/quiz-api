@@ -32,7 +32,6 @@ func (s service) SubmitQuiz(submission models.Submission) (models.SubmissionResp
 	correctCount := 0
 
 	totalQuestions := s.storage.Count()
-	fmt.Println("totalQuestions: ", totalQuestions)
 
 	if totalQuestions != len(submission.Answers) {
 		return models.SubmissionResponse{}, fmt.Errorf("invalid submission: expected %d answers, got %d", totalQuestions, len(submission.Answers))
