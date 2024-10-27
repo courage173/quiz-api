@@ -41,8 +41,8 @@ func (s service) SubmitQuiz(submission models.Submission) models.SubmissionRespo
 		}
 	}
 	result := &models.Result{UserName: submission.UserName, Score: correctCount}
-	s.storage.AddUserSubmission(*result)
 	scoreRankPercentage := s.calculateScoreRankPercentage(result.Score)
+	s.storage.AddUserSubmission(*result)
 
 	message := fmt.Sprintf("You were better than %.2f%% of all quizzers", scoreRankPercentage)
 
@@ -57,6 +57,8 @@ func (s service) SubmitQuiz(submission models.Submission) models.SubmissionRespo
 func (s service) calculateScoreRankPercentage(score int) float64 {
 	submissions := s.storage.GetSubmissions()
 	totalSubmissions := len(submissions)
+
+	fmt.Println(submissions)
 
 	if totalSubmissions == 0 {
 		return 100.0

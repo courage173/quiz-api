@@ -30,6 +30,10 @@ import (
 	"github.com/courage173/quiz-api/internal/errors"
 
 	"github.com/courage173/quiz-api/internal/healthcheck"
+
+	"github.com/courage173/quiz-api/internal/quiz"
+
+	"github.com/courage173/quiz-api/internal/storage"
 )
 
 var (
@@ -96,19 +100,13 @@ func buildHandler(logger log.Logger) http.Handler {
 
 	healthcheck.RegisterHandlers(router, Version)
 
-	// rg := router.Group("/v1")
+	rg := router.Group("/v1")
 
-	// authHandler := auth.Handler(cfg.JWTSigningKey)
+	storage := storage.NewStorage()
 
-	// album.RegisterHandlers(rg.Group(""),
-	// 	album.NewService(album.NewRepository(db, logger), logger),
-	// 	authHandler, logger,
-	// )
-
-	// auth.RegisterHandlers(rg.Group(""),
-	// 	auth.NewService(jwtSigningKey, expiry, logger, users.NewRepository(db, logger)),
-	// 	logger,
-	// )
+	quiz.RegisterHandlers(rg.Group("/quiz"),
+		quiz.NewService(storage, logger), logger,
+	)
 
 	return router
 }
