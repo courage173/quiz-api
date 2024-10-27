@@ -64,14 +64,12 @@ func (s service) SubmitQuiz(submission models.Submission) (models.SubmissionResp
 }
 
 func (s service) calculateScoreRankPercentage(score int) float64 {
-	if score <= 0 {
+	if score == 0 {
 		return 0.0
 	}
 
 	submissions := s.storage.GetSubmissions()
 	totalSubmissions := len(submissions)
-
-	fmt.Println(submissions)
 
 	if totalSubmissions == 0 {
 		return 100.0
